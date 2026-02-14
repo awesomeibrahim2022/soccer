@@ -89,6 +89,28 @@ Run daily at 03:00 UTC (t-1 / t refresh):
 0 3 * * * cd /workspace/soccer && /usr/bin/python3 -m backend.scripts.auto_refresh --source sportsdb --season 2024-2025 --window-days 1 >> /workspace/soccer/data/cron.log 2>&1
 ```
 
+
+## Web portal auto-deploy (Render)
+
+This repo now includes a Render Blueprint file: `render.yaml`.
+
+### One-time setup
+1. Push this repository to GitHub.
+2. In Render: **New +** -> **Blueprint** -> select the repo.
+3. Render will create:
+   - `soccer-predictor-api` (web service)
+   - `soccer-predictor-refresh` (daily cron refresh at 03:00 UTC)
+4. Add secret env vars in Render dashboard:
+   - `FOOTBALL_DATA_API_TOKEN` (optional unless using football-data source)
+   - `API_FOOTBALL_KEY` (optional injury enrichment)
+
+### What is automated by the portal
+- Build + deploy on each git push (`autoDeploy: true`).
+- API startup with auto-ingest checks.
+- Daily scheduled ingestion/retraining run.
+
+For local parity, copy `.env.example` to `.env` and set values.
+
 ## API
 
 - `GET /health`

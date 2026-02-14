@@ -1,0 +1,45 @@
+services:
+  - type: web
+    name: soccer-predictor-api
+    env: docker
+    dockerfilePath: ./Dockerfile
+    autoDeploy: true
+    envVars:
+      - key: SOCCER_DATA_SOURCE
+        value: online_api
+      - key: SOCCER_AUTO_INGEST
+        value: "true"
+      - key: SOCCER_MAX_INGEST_AGE_HOURS
+        value: "30"
+      - key: SOCCER_INGEST_SOURCE
+        value: sportsdb
+      - key: SOCCER_INGEST_SEASON
+        value: "2024-2025"
+      - key: SOCCER_INGEST_WINDOW_DAYS
+        value: "1"
+      - key: FOOTBALL_DATA_API_TOKEN
+        sync: false
+      - key: API_FOOTBALL_KEY
+        sync: false
+
+  - type: cron
+    name: soccer-predictor-refresh
+    env: docker
+    dockerfilePath: ./Dockerfile
+    schedule: "0 3 * * *"
+    command: "python -m backend.scripts.auto_refresh --source sportsdb --season 2024-2025 --window-days 1"
+    envVars:
+      - key: SOCCER_DATA_SOURCE
+        value: online_api
+      - key: SOCCER_AUTO_INGEST
+        value: "true"
+      - key: SOCCER_INGEST_SOURCE
+        value: sportsdb
+      - key: SOCCER_INGEST_SEASON
+        value: "2024-2025"
+      - key: SOCCER_INGEST_WINDOW_DAYS
+        value: "1"
+      - key: FOOTBALL_DATA_API_TOKEN
+        sync: false
+      - key: API_FOOTBALL_KEY
+        sync: false
