@@ -27,7 +27,7 @@ services:
     env: docker
     dockerfilePath: ./Dockerfile
     schedule: "0 3 * * *"
-    command: "python -m backend.scripts.auto_refresh --source sportsdb --season 2024-2025 --window-days 1"
+   ## command: "python -m backend.scripts.auto_refresh --source sportsdb --season 2024-2025 --window-days 1"
     envVars:
       - key: SOCCER_DATA_SOURCE
         value: online_api
