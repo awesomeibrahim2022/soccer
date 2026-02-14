@@ -18,6 +18,7 @@ function App() {
   const [metrics, setMetrics] = useState(null);
   const [dataSource, setDataSource] = useState(null);
   const [ingestion, setIngestion] = useState(null);
+  const [autoIngest, setAutoIngest] = useState(null);
 
   useEffect(() => {
     Promise.all([
@@ -35,11 +36,13 @@ function App() {
       setPredictions(predData.predictions || []);
       setDataSource(sourceData);
       setIngestion(sourceData.ingestion || null);
+      setAutoIngest(sourceData.auto_ingest || null);
     }).catch(() => {
       setLeagues(["Premier League", "La Liga", "Bundesliga", "Serie A", "UEFA Champions League"]);
       setPredictions([]);
       setDataSource({ mode: "offline", description: "API unreachable from dashboard" });
       setIngestion(null);
+      setAutoIngest(null);
     });
   }, []);
 
@@ -55,6 +58,7 @@ function App() {
     React.createElement("div", { className: "subtitle" }, "Continual-learning predictions for top European leagues + UCL"),
     React.createElement("div", { className: "source-pill" }, `Data source: ${dataSource?.mode || "unknown"} — ${dataSource?.description || "not loaded"}`),
     React.createElement("div", { className: "source-pill" }, `Last ingestion: ${ingestion?.ingested_at || "not yet ingested"} (${ingestion?.freshness_window || "n/a"})`),
+    React.createElement("div", { className: "source-pill" }, `Auto ingest: ${autoIngest?.status || "unknown"}${autoIngest?.reason ? ` — ${autoIngest.reason}` : ""}`),
     React.createElement(
       "div",
       { className: "filters" },

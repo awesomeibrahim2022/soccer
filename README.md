@@ -52,6 +52,21 @@ pip install -r backend/requirements.txt
 uvicorn backend.app.main:app --reload
 ```
 
+
+## Zero-manual auto ingestion on service start
+
+When `SOCCER_DATA_SOURCE=online_api` (default), the API now attempts automatic ingestion on startup when cache is missing/stale.
+
+Environment controls:
+
+- `SOCCER_AUTO_INGEST=true|false` (default: `true`)
+- `SOCCER_MAX_INGEST_AGE_HOURS` (default: `30`)
+- `SOCCER_INGEST_SOURCE=football_data|sportsdb` (default: `sportsdb`)
+- `SOCCER_INGEST_SEASON` (default: current year)
+- `SOCCER_INGEST_WINDOW_DAYS` (default: `1`, for t-1/t window)
+
+If online ingest fails but an existing cache exists, startup falls back to cache and reports a warning in `/health` under `auto_ingest`.
+
 ## Trigger online ingestion + retrain (HTTP)
 
 ```bash

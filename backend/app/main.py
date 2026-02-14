@@ -7,12 +7,13 @@ import pandas as pd
 from fastapi import FastAPI
 from pydantic import BaseModel, Field
 
-from .data_source import get_data_source_config
+from .data_source import auto_refresh_online_data, get_data_source_config
 from .leagues import SUPPORTED_LEAGUES
 from .model import MatchModelService
 from .online_ingest import ingest_online, read_ingestion_status
 
 DATA_SOURCE = get_data_source_config()
+AUTO_INGEST_STATUS = auto_refresh_online_data(DATA_SOURCE)
 
 
 def _load_history() -> pd.DataFrame:
@@ -64,6 +65,7 @@ def health() -> dict:
         "records": int(len(model_service.history)),
         "data_source_mode": DATA_SOURCE.mode,
         "ingestion": read_ingestion_status(),
+        "auto_ingest": AUTO_INGEST_STATUS,
     }
 
 
@@ -79,6 +81,7 @@ def data_source() -> dict:
         "csv_path": str(DATA_SOURCE.historical_csv),
         "description": DATA_SOURCE.description,
         "ingestion": read_ingestion_status(),
+        "auto_ingest": AUTO_INGEST_STATUS,
     }
 
 
@@ -125,4 +128,5 @@ def model_metrics() -> dict:
         },
         "last_retrain_matches": int(len(model_service.history)),
         "ingestion": read_ingestion_status(),
+        "auto_ingest": AUTO_INGEST_STATUS,
     }
