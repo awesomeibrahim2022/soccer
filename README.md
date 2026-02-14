@@ -35,10 +35,31 @@ python -m http.server 4173 -d frontend
 
 Open `http://127.0.0.1:4173`.
 
+
+## Current status (important)
+
+This repository is a **starter implementation** and currently uses a **synthetic local CSV** as the data source by default.
+It is useful for validating pipeline wiring and UI flow, but it is **not yet production-grade forecasting** until connected to real provider feeds and validated with full backtesting.
+
+### Data source configuration
+
+- Default mode: `SOCCER_DATA_SOURCE=synthetic_csv`
+- Default file: `SOCCER_HISTORICAL_CSV=data/historical_matches.csv`
+- Generate synthetic data: `python backend/scripts/generate_sample_data.py`
+- API introspection endpoint: `GET /meta/data-source`
+
+To switch to real historical data, provide your own CSV in the same schema and set:
+
+```bash
+export SOCCER_DATA_SOURCE=custom_csv
+export SOCCER_HISTORICAL_CSV=/path/to/your/historical_matches.csv
+```
+
 ## API
 
 - `GET /health`
 - `GET /meta/leagues`
+- `GET /meta/data-source`
 - `POST /predict`
 - `POST /learn`
 - `GET /model/metrics`

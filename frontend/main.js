@@ -16,23 +16,27 @@ function App() {
   const [selectedLeague, setSelectedLeague] = useState("All");
   const [predictions, setPredictions] = useState([]);
   const [metrics, setMetrics] = useState(null);
+  const [dataSource, setDataSource] = useState(null);
 
   useEffect(() => {
     Promise.all([
       fetch(`${API_BASE}/meta/leagues`).then((r) => r.json()),
       fetch(`${API_BASE}/model/metrics`).then((r) => r.json()),
+      fetch(`${API_BASE}/meta/data-source`).then((r) => r.json()),
       fetch(`${API_BASE}/predict`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(seedFixtures),
       }).then((r) => r.json()),
-    ]).then(([meta, metricData, predData]) => {
+    ]).then(([meta, metricData, sourceData, predData]) => {
       setLeagues(meta.leagues || []);
       setMetrics(metricData);
       setPredictions(predData.predictions || []);
+      setDataSource(sourceData);
     }).catch(() => {
       setLeagues(["Premier League", "La Liga", "Bundesliga", "Serie A", "UEFA Champions League"]);
       setPredictions([]);
+      setDataSource({ mode: "offline", description: "API unreachable from dashboard" });
     });
   }, []);
 
@@ -46,6 +50,7 @@ function App() {
     { className: "wrapper" },
     React.createElement("h1", null, "Soccer ML Predictor"),
     React.createElement("div", { className: "subtitle" }, "Continual-learning predictions for top European leagues + UCL"),
+    React.createElement("div", { className: "source-pill" }, `Data source: ${dataSource?.mode || "unknown"} — ${dataSource?.description || "not loaded"}`),
     React.createElement(
       "div",
       { className: "filters" },

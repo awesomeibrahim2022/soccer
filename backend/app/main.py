@@ -1,24 +1,26 @@
 from __future__ import annotations
 
-from pathlib import Path
 from typing import List
 
 import pandas as pd
 from fastapi import FastAPI
 from pydantic import BaseModel, Field
 
+from .data_source import get_data_source_config
 from .leagues import SUPPORTED_LEAGUES
 from .model import MatchModelService
 
-DATA_PATH = Path("data/historical_matches.csv")
+DATA_SOURCE = get_data_source_config()
 
 
 def _load_history() -> pd.DataFrame:
-    if not DATA_PATH.exists():
+    if not DATA_SOURCE.historical_csv.exists():
         raise FileNotFoundError(
-            "Missing data/historical_matches.csv. Run `python backend/scripts/generate_sample_data.py`."
+            f"Missing {DATA_SOURCE.historical_csv}. "
+            "Generate data with `python backend/scripts/generate_sample_data.py` "
+            "or set SOCCER_HISTORICAL_CSV to your dataset path."
         )
-    history = pd.read_csv(DATA_PATH)
+    history = pd.read_csv(DATA_SOURCE.historical_csv)
     return history.sort_values("match_date")
 
 
@@ -50,12 +52,25 @@ class ResultPayload(FixturePayload):
 
 @app.get("/health")
 def health() -> dict:
-    return {"status": "ok", "records": int(len(model_service.history))}
+    return {
+        "status": "ok",
+        "records": int(len(model_service.history)),
+        "data_source_mode": DATA_SOURCE.mode,
+    }
 
 
 @app.get("/meta/leagues")
 def leagues() -> dict:
     return {"leagues": SUPPORTED_LEAGUES}
+
+
+@app.get("/meta/data-source")
+def data_source() -> dict:
+    return {
+        "mode": DATA_SOURCE.mode,
+        "csv_path": str(DATA_SOURCE.historical_csv),
+        "description": DATA_SOURCE.description,
+    }
 
 
 @app.post("/predict")
